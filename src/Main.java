@@ -1,4 +1,5 @@
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.InputMismatchException;
@@ -11,6 +12,13 @@ public class Main {
         System.out.println(equipmentList.size());
         Scanner scanner = new Scanner(System.in);
         int numMenu = 0;
+        int idInput = 0;
+        String nameInput = null;
+        double temperatureInput = 0;
+        int voltageInput = 0;
+        int currentInput = 0;
+        LocalDate newLocalDate = null;
+
         while (numMenu != 9) {
             try {
                 menuConsole();
@@ -19,6 +27,85 @@ public class Main {
                 switch (numMenu) {
                     case 1:
                         System.out.println("Добавление оборудования");
+                        System.out.println("Введите ID");
+                            boolean whileStatus = false;
+                                while (!whileStatus) {
+                                    whileStatus = true;
+                                    try {
+                                    idInput = scanner.nextInt();
+                                    for (Equipment equipment : equipmentList) {
+                                        if (equipment.getId() == idInput) {
+                                            System.out.println("Введен повторяющийся ID");
+                                            System.out.println("Введите новый ID");
+                                            whileStatus = false;
+                                            break;
+                                            }
+                                        }
+                                    }
+                                    catch (InputMismatchException е) {
+                                        System.out.println("Введите уникальный ID (целое число)");
+                                        scanner.next();
+                                        whileStatus = false;
+                                    }
+                                }
+
+                        System.out.println("Введите название");
+                            scanner.nextLine();
+                            nameInput = scanner.nextLine();
+
+                            System.out.println("Введите температуру");
+                            boolean temperatureStatus = false;
+                            while (!temperatureStatus) {
+                                try {
+                                    temperatureInput = scanner.nextDouble();
+                                    temperatureStatus = true;
+                                } catch (InputMismatchException e) {
+                                    System.out.println("Введите температуру");
+                                    scanner.next();
+                                    temperatureStatus = false;
+                                }
+                            }
+                        System.out.println("Введите напряжение");
+                            boolean voltageStatus = false;
+                            while (!voltageStatus) {
+                                try {
+                                    voltageInput = scanner.nextInt();
+                                    voltageStatus = true;
+                                } catch (InputMismatchException e) {
+                                    System.out.println("Введите напряжение");
+                                    scanner.next();
+                                    voltageStatus = false;
+                                }
+                            }
+                        System.out.println("Введите ток");
+                            boolean currentStatus = false;
+                            while (!currentStatus) {
+                                try {
+                                    currentInput = scanner.nextInt();
+                                    currentStatus = true;
+                                } catch (InputMismatchException e) {
+                                    System.out.println("Введите ток");
+                                    scanner.next();
+                                    currentStatus = false;
+                                }
+                            }
+
+                            boolean dateStatus = false;
+                        System.out.println("Введите дату последней проверки (в формате ГГГГ-ММ-ДД");
+                            while (!dateStatus) {
+                                try {
+
+                                    String localDateInput = scanner.next();
+                                    newLocalDate = LocalDate.parse(localDateInput);
+                                    dateStatus = true;
+
+                                } catch (DateTimeParseException e) {
+                                    System.out.println("Введите дату последней проверки (в формате ГГГГ-ММ-ДД");
+                                }
+                            }
+
+                        equipmentList.add(new Equipment(idInput ,nameInput, temperatureInput, voltageInput, currentInput, newLocalDate));
+                        System.out.println("Оборудование успешно добавлено");
                         break;
                     case 2:
                         System.out.println("Список оборудования");
