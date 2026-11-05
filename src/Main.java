@@ -139,11 +139,11 @@ public class Main {
                             } else {
                                 System.out.println("Ток: отклонение");
                             }
-                                    if (equipment.chekStatus()) {
-                                        System.out.println("Общий статус: оборудование в норме");
-                                    } else {
-                                        System.out.println("Общий статус: обнаружено отклонение");
-                                    }
+                            if (equipment.chekStatus()) {
+                                System.out.println("Общий статус: оборудование в норме");
+                            } else {
+                                System.out.println("Общий статус: обнаружено отклонение");
+                            }
                             System.out.println();
                         }
                         break;
@@ -175,10 +175,66 @@ public class Main {
                         }
                         break;
                     case 4:
-                        equipmentList.get(0).chekStatus();
+                        boolean foundID = false;
+                                try {
+                                System.out.println("Введите ID");
+                                int searchStatusID = scanner.nextInt();
+
+                                for (Equipment equipment : equipmentList) {
+                                    if (equipment.getId() == searchStatusID) {
+                                        if (equipment.chekTemperature(equipment.getTemperature())) {
+                                            System.out.println("Температура: норма");
+                                        } else {
+                                            System.out.println("Температура: отклонение");
+                                        }
+                                        if (equipment.chekVoltage(equipment.getVoltage())) {
+                                            System.out.println("Напряжение: норма");
+                                        } else {
+                                            System.out.println("Напряжение: отклонение");
+                                        }
+                                        if (equipment.chekCurrent(equipment.getCurrent())) {
+                                            System.out.println("Ток: норма");
+                                        } else {
+                                            System.out.println("Ток: отклонение");
+                                        }
+                                        if (equipment.chekStatus()) {
+                                            System.out.println("Общий статус: оборудование в норме");
+                                        } else {
+                                            System.out.println("Общий статус: обнаружено отклонение");
+                                        }
+                                        foundID = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!foundID) {
+                                    System.out.println("Оборудование не найдено");
+                                }
+
+                            } catch (InputMismatchException e) {
+                                System.out.println("Введен неверный ID");
+                                scanner.next();
+                                }
+
                         break;
                     case 5:
-                        System.out.println("Оборудование с отклонениями");
+                        boolean listStatusEquipment = false;
+                        System.out.println("Оборудование с отклонениями:");
+                        for (Equipment equipment : equipmentList) {
+                            if (!equipment.chekStatus()) {
+                                System.out.println("ID: " + equipment.getId()
+                                        + " | Название: " + equipment.getName()
+                                        + " | Температура: " + equipment.getTemperature()
+                                        + " | Напряжение: " + equipment.getVoltage()
+                                        + " | Ток: " + equipment.getCurrent()
+                                        + " | Дата последней проверки: " + equipment.getLastCheck());
+                                System.out.println("Общий статус: обнаружено отклонение");
+                                listStatusEquipment = true;
+                            }
+                        }
+                        if (!listStatusEquipment) {
+                            System.out.println("Оборудование с отклонениями отсутствует");
+                        }
                         break;
                     case 6:
                         System.out.println("История проверок");
