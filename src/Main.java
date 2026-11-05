@@ -119,7 +119,32 @@ public class Main {
                         System.out.println("Список оборудования");
                         for (Equipment equipment : equipmentList) {
                             System.out.println("ID: " + equipment.getId()
-                                    + " | Название: " + equipment.getName());
+                                    + " | Название: " + equipment.getName()
+                                    + " | Температура: " + equipment.getTemperature()
+                                    + " | Напряжение: " + equipment.getVoltage()
+                                    + " | Ток: " + equipment.getCurrent()
+                                    + " | Дата последней проверки: " + equipment.getLastCheck());
+                            if (equipment.chekTemperature(equipment.getTemperature())) {
+                                System.out.println("Температура: норма");
+                            } else {
+                                System.out.println("Температура: отклонение");
+                            }
+                            if (equipment.chekVoltage(equipment.getVoltage())) {
+                                System.out.println("Напряжение: норма");
+                            } else {
+                                System.out.println("Напряжение: отклонение");
+                            }
+                            if (equipment.chekCurrent(equipment.getCurrent())) {
+                                System.out.println("Ток: норма");
+                            } else {
+                                System.out.println("Ток: отклонение");
+                            }
+                                    if (equipment.chekStatus()) {
+                                        System.out.println("Общий статус: оборудование в норме");
+                                    } else {
+                                        System.out.println("Общий статус: обнаружено отклонение");
+                                    }
+                            System.out.println();
                         }
                         break;
                     case 3:
@@ -259,54 +284,21 @@ class Equipment {
     public void chekName (String name) {
         System.out.println("Оборудование: " + name);
     }
-    boolean chekCurrStatus;
-    boolean chekVoltStatus;
-    boolean chekTempStatus;
+
     public boolean chekTemperature (double temperature) {
-        if (temperature >= 0 && temperature <= 80) {
-            System.out.println("Температура: " + temperature + " - норма");
-            chekTempStatus = true;
-            return chekTempStatus;
-        } else {
-            System.out.println("Температура: " + temperature + " - отклонение");
-            chekTempStatus = false;
-            return chekTempStatus;
-        }
-    }
+        return temperature >= 0 && temperature <= 80;
+      }
 
     public boolean chekVoltage (int voltage) {
-        if (voltage >= 210 && voltage <= 230) {
-            System.out.println("Напряжение: " + voltage + " - норма");
-            chekVoltStatus = true;
-            return chekVoltStatus;
-        } else {
-            System.out.println("Напряжение: " + voltage + " - отклонение");
-            chekVoltStatus = false;
-            return chekVoltStatus;
-        }
+        return voltage >= 210 && voltage <= 230;
     }
 
     public boolean chekCurrent (int current) {
-        if (current >= 0 && current <= 20) {
-            System.out.println("Ток: " + current + " - норма");
-            chekCurrStatus = true;
-            return chekCurrStatus;
-        } else {
-            System.out.println("Ток: " + current + " - отклонение");
-            chekCurrStatus = false;
-            return chekCurrStatus;
-        }
+        return current >= 0 && current <= 20;
     }
 
-    public void chekStatus() {
-        chekCurrent(current);
-        chekTemperature(temperature);
-        chekVoltage(voltage);
-        if (chekVoltStatus && chekCurrStatus && chekTempStatus) {
-           System.out.println("Общий статус: - Оборудование в норме");
-        } else {
-            System.out.println("Общий статус - ОБНАРУЖЕНО ОТКЛОНЕНИЕ");
-        }
+    public boolean chekStatus() {
+        return chekVoltage(voltage) && chekCurrent(current) && chekTemperature(temperature);
     }
 
 }
