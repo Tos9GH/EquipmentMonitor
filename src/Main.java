@@ -9,7 +9,6 @@ public class Main {
         ArrayList<Equipment> equipmentList = new ArrayList<>();
         equipmentList.add(new Equipment(1, "Насос", 45.1, 220, 10, LocalDate.of(2026,10,5)));
         equipmentList.add(new Equipment(2, "Трансформатор", 50, 210,15, LocalDate.of(2026, 9, 15)));
-        System.out.println(equipmentList.size());
         Scanner scanner = new Scanner(System.in);
         int numMenu = 0;
         int idInput = 0;
@@ -42,16 +41,25 @@ public class Main {
                                             }
                                         }
                                     }
-                                    catch (InputMismatchException е) {
+                                    catch (InputMismatchException e) {
                                         System.out.println("Введите уникальный ID (целое число)");
                                         scanner.next();
                                         whileStatus = false;
                                     }
                                 }
 
-                        System.out.println("Введите название");
-                            scanner.nextLine();
-                            nameInput = scanner.nextLine();
+                            System.out.println("Введите название");
+                        scanner.nextLine();
+                                boolean nameStatus = false;
+                                while (!nameStatus) {
+                                    nameInput = scanner.nextLine();
+                                    if (!nameInput.isBlank()) {
+                                        nameStatus = true;
+                                    } else {
+                                        System.out.println("Название не может быть пустым");
+                                        nameStatus = false;
+                                    }
+                                }
 
                             System.out.println("Введите температуру");
                             boolean temperatureStatus = false;
@@ -91,7 +99,7 @@ public class Main {
                             }
 
                             boolean dateStatus = false;
-                        System.out.println("Введите дату последней проверки (в формате ГГГГ-ММ-ДД");
+                        System.out.println("Введите дату последней проверки (в формате ГГГГ-ММ-ДД)");
                             while (!dateStatus) {
                                 try {
 
