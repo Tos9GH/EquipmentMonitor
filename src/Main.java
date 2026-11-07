@@ -1,12 +1,17 @@
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.InputMismatchException;
+import model.EquipmentStatus;
+import model.CheckRecord;
 
 public class Main {
     public static void main(String[] args) {
         ArrayList<Equipment> equipmentList = new ArrayList<>();
+        ArrayList<CheckRecord> historyList = new ArrayList<>();
         equipmentList.add(new Equipment(1, "Насос", 45.1, 220, 10, LocalDate.of(2026,10,5)));
         equipmentList.add(new Equipment(2, "Трансформатор", 50, 210,15, LocalDate.of(2026, 9, 15)));
         Scanner scanner = new Scanner(System.in);
@@ -17,6 +22,7 @@ public class Main {
         int voltageInput = 0;
         int currentInput = 0;
         LocalDate newLocalDate = null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
         while (numMenu != 9) {
             try {
@@ -176,32 +182,40 @@ public class Main {
                         break;
                     case 4:
                         boolean foundID = false;
+
                                 try {
                                 System.out.println("Введите ID");
                                 int searchStatusID = scanner.nextInt();
 
                                 for (Equipment equipment : equipmentList) {
                                     if (equipment.getId() == searchStatusID) {
-                                        if (equipment.chekTemperature(equipment.getTemperature())) {
+                                        boolean temperatureNormal = equipment.chekTemperature(equipment.getTemperature());
+                                        boolean voltageNormal = equipment.chekVoltage(equipment.getVoltage());
+                                        boolean currentNormal = equipment.chekCurrent(equipment.getCurrent());
+                                        EquipmentStatus overallStatus = temperatureNormal && currentNormal && voltageNormal ? EquipmentStatus.NORMAL : EquipmentStatus.WARNING;
+                                        if (temperatureNormal) {
                                             System.out.println("Температура: норма");
                                         } else {
                                             System.out.println("Температура: отклонение");
                                         }
-                                        if (equipment.chekVoltage(equipment.getVoltage())) {
+                                        if (voltageNormal) {
                                             System.out.println("Напряжение: норма");
                                         } else {
                                             System.out.println("Напряжение: отклонение");
                                         }
-                                        if (equipment.chekCurrent(equipment.getCurrent())) {
+                                        if (currentNormal) {
                                             System.out.println("Ток: норма");
                                         } else {
                                             System.out.println("Ток: отклонение");
                                         }
-                                        if (equipment.chekStatus()) {
+                                        if (overallStatus == EquipmentStatus.NORMAL) {
                                             System.out.println("Общий статус: оборудование в норме");
                                         } else {
                                             System.out.println("Общий статус: обнаружено отклонение");
                                         }
+                                        LocalDateTime nowDateTime = LocalDateTime.now();
+                                        historyList.add(new CheckRecord(equipment.getId(), equipment.getName(), nowDateTime, equipment.getTemperature(), equipment.getVoltage(), equipment.getCurrent(), temperatureNormal, voltageNormal, currentNormal, overallStatus));
+                                        equipment.setLastCheck(nowDateTime.toLocalDate());
                                         foundID = true;
                                         break;
                                     }
@@ -238,6 +252,21 @@ public class Main {
                         break;
                     case 6:
                         System.out.println("История проверок");
+                        if (historyList.isEmpty()) {
+                            System.out.println("История проверок отсутствует");
+                        } else {
+                            historyList.forEach(checkRecord -> System.out.println("ID: " + checkRecord.getEquipmentId()
+                                    + " | Название: " + checkRecord.getEquipmentName()
+                                    + "\nПоследняя проверка: " + checkRecord.getCheckDateTime().format(formatter)
+                                    + "\nТемпература: " + checkRecord.getTemperature()
+                                    + " - " + (checkRecord.isTemperatureNormal() ? "Норма" : "Отклонение")
+                                    + "\nНапряжение: " + checkRecord.getVoltage()
+                                    + " - " + (checkRecord.isVoltageNormal() ? "Норма" : "Отклонение")
+                                    + "\nТок: " + checkRecord.getCurrent()
+                                    + " - " + (checkRecord.isCurrentNormal() ? "Норма" : "Отклонение")
+                                    + "\nОбщий статус: " + (checkRecord.getOverallStatus() == EquipmentStatus.NORMAL ? "Оборудование работает в нормальном режиме" : "Обнаружено отклонение")
+                                    + "\n------------------------"));
+                        }
                         break;
                     case 7:
                         System.out.println("Данные сохранены в файл");
