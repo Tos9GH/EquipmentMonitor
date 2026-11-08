@@ -3,7 +3,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Scanner;
 import java.util.InputMismatchException;
 import model.EquipmentStatus;
@@ -275,17 +274,29 @@ public class Main {
                         break;
                     case 7:
                         String equipmentToString = equipmentList.stream()
-                               .map(equipment -> equipment.getId()+ ";" + equipment.getName() + ";" + equipment.getTemperature()
+                               .map(equipment -> equipment.getId() + ";" + equipment.getName() + ";" + equipment.getTemperature()
                                + ";" + equipment.getVoltage() + ";" +  equipment.getCurrent() + ";" + equipment.getLastCheck())
                                .collect(Collectors.joining("\n"));
-                        System.out.println(equipmentToString);
+                        String historyToString = historyList.stream()
+                                        .map( checkRecord -> checkRecord.getEquipmentId() + ";" + checkRecord.getEquipmentName() + ";" + checkRecord.getCheckDateTime() + ";"
+                                        + checkRecord.getTemperature() + ";" + checkRecord.getVoltage() + ";" + checkRecord.getCurrent() + ";" + checkRecord.isTemperatureNormal()
+                                                + ";" + checkRecord.isVoltageNormal() + ";" + checkRecord.isCurrentNormal() + ";" + checkRecord.getOverallStatus())
+                                                .collect(Collectors.joining("\n"));
                         Path equipmentPath = Path.of("data", "equipment.txt");
+                        Path historyPath = Path.of("data", "history.txt");
                         try {
                             Files.writeString(equipmentPath, equipmentToString);
                             System.out.println("Данные сохранены в файл");
                         } catch (IOException e) {
                             System.out.println(e.getMessage());
                             System.out.println("Данные не внесены в файл");
+                        }
+                        try {
+                            Files.writeString(historyPath, historyToString);
+                            System.out.println("История проверки сохранена в файл");
+                        } catch (IOException e) {
+                            System.out.println(e.getMessage());
+                            System.out.println("История проверорк не внесена в файл");
                         }
                         break;
                     case 8:
