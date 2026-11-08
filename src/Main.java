@@ -3,10 +3,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.InputMismatchException;
 import model.EquipmentStatus;
 import model.CheckRecord;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.io.IOException;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
@@ -269,7 +274,19 @@ public class Main {
                         }
                         break;
                     case 7:
-                        System.out.println("Данные сохранены в файл");
+                        String equipmentToString = equipmentList.stream()
+                               .map(equipment -> equipment.getId()+ ";" + equipment.getName() + ";" + equipment.getTemperature()
+                               + ";" + equipment.getVoltage() + ";" +  equipment.getCurrent() + ";" + equipment.getLastCheck())
+                               .collect(Collectors.joining("\n"));
+                        System.out.println(equipmentToString);
+                        Path equipmentPath = Path.of("data", "equipment.txt");
+                        try {
+                            Files.writeString(equipmentPath, equipmentToString);
+                            System.out.println("Данные сохранены в файл");
+                        } catch (IOException e) {
+                            System.out.println(e.getMessage());
+                            System.out.println("Данные не внесены в файл");
+                        }
                         break;
                     case 8:
                         System.out.println("Данные из файла загружены");
