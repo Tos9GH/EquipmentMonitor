@@ -3,6 +3,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.InputMismatchException;
 import model.EquipmentStatus;
@@ -300,7 +301,111 @@ public class Main {
                         }
                         break;
                     case 8:
-                        System.out.println("Данные из файла загружены");
+                        Path equipmentReadPath = Path.of("data", "equipment.txt");
+                        try {
+                            List<String> equipmentRead = Files.readAllLines(equipmentReadPath);
+                            System.out.println("Количество записей: " + equipmentRead.size());
+                            ArrayList<Equipment> loadedEquipment = new ArrayList<>();
+                            boolean validData = true;
+                            try {
+                                for (String line : equipmentRead) {
+                                    String[] splitLine = line.split(";", -1);
+                                    if (splitLine.length != 6) {
+                                        System.out.println("Некорретная строка в файле оборудования");
+                                        validData = false;
+                                        break;
+                                    }
+                                    int id;
+                                    String name;
+                                    double temperature;
+                                    int voltage;
+                                    int current;
+                                    LocalDate lastCheck;
+                                    id = Integer.parseInt(splitLine[0]);
+                                    name = splitLine[1];
+                                    temperature = Double.parseDouble(splitLine[2]);
+                                    voltage = Integer.parseInt(splitLine[3]);
+                                    current = Integer.parseInt(splitLine[4]);
+                                    lastCheck = LocalDate.parse(splitLine[5]);
+                                    loadedEquipment.add(new Equipment(id, name, temperature, voltage, current, lastCheck));
+                                }
+                                if (validData) {
+                                    equipmentList.clear();
+                                    equipmentList.addAll(loadedEquipment);
+                                }
+
+                            } catch (IllegalArgumentException | DateTimeParseException e) {
+                                System.out.println("Ошибка формата данных оборудования. Проверьте файл equipment.txt");
+                            }
+                            System.out.println("Загружено оборудования: " + equipmentList.size());
+                        } catch (IOException e) {
+                            System.out.println(e.getMessage());
+                        }
+                        Path historyReadPath = Path.of("data", "history.txt");
+                        try {
+                            List<String> historyRead = Files.readAllLines(historyReadPath);
+                            System.out.println("Количество записей: " + historyRead.size());
+                            ArrayList<CheckRecord> loadedHistory = new ArrayList<>();
+                            boolean validHistory = true;
+                            try {
+                                for (String lineHistory : historyRead) {
+                                    String[] historySplit = lineHistory.split(";", -1);
+                                    if (historySplit.length != 10) {
+                                        System.out.println("Некорретная строка в файле истории");
+                                        validHistory = false;
+                                        break;
+                                    }
+                                    int equipmentId = Integer.parseInt(historySplit[0]);
+                                    String equipmentName = historySplit[1];
+                                    LocalDateTime checkDateTime = LocalDateTime.parse(historySplit[2]);
+                                    double temperature = Double.parseDouble(historySplit[3]);
+                                    int voltage = Integer.parseInt(historySplit[4]);
+                                    int current = Integer.parseInt(historySplit[5]);
+                                    if (!historySplit[6].equals("true") && !historySplit[6].equals("false")) {
+                                        System.out.println("Неверно указано состояние проверки температуры");
+                                        validHistory = false;
+                                        break;
+                                    }
+                                    boolean temperatureNormal = Boolean.parseBoolean(historySplit[6]);
+                                    if (!historySplit[7].equals("true") && !historySplit[7].equals("false")) {
+                                        System.out.println("Неверно указано состояние проверки напряжения");
+                                        validHistory = false;
+                                        break;
+                                    }
+                                    boolean voltageNormal = Boolean.parseBoolean(historySplit[7]);
+                                    if (!historySplit[8].equals("true") && !historySplit[8].equals("false")) {
+                                        System.out.println("Неверно указано состояние проверки тока");
+                                        validHistory = false;
+                                        break;
+                                    }
+                                    boolean currentNormal = Boolean.parseBoolean(historySplit[8]);
+                                        EquipmentStatus overallStatus = EquipmentStatus.valueOf(historySplit[9]);
+                                    if (temperatureNormal && currentNormal && voltageNormal) {
+                                        if (!EquipmentStatus.NORMAL.equals(overallStatus)) {
+                                            System.out.println("Неккоректное значение статуса оборудования");
+                                            validHistory = false;
+                                            break;
+                                        }
+                                    } else {
+                                        if (!EquipmentStatus.WARNING.equals(overallStatus)) {
+                                            System.out.println("Некорректное значение статуса оборудования");
+                                            validHistory = false;
+                                            break;
+                                        }
+                                    }
+                                        loadedHistory.add(new CheckRecord(equipmentId, equipmentName, checkDateTime, temperature, voltage, current, temperatureNormal, voltageNormal, currentNormal, overallStatus));
+                                }
+                                if (validHistory) {
+                                    historyList.clear();
+                                    historyList.addAll(loadedHistory);
+                                }
+                            } catch (IllegalArgumentException | DateTimeParseException e) {
+                                System.out.println("Ошибка формата данных истории. Проверьте файл history.txt");
+                            }
+                            System.out.println("Загружено записей истории: " + historyList.size());
+                        } catch (IOException e) {
+                            System.out.println("Не удалось загрузить историю проверок: " + e.getMessage());
+                        }
                         break;
                     case 9:
                         System.out.println("Завершение программы");
