@@ -13,10 +13,12 @@ import java.nio.file.Path;
 import java.io.IOException;
 import java.util.stream.Collectors;
 import model.Equipment;
+import service.EquipmentService;
 
 public class Main {
     public static void main(String[] args) {
         ArrayList<Equipment> equipmentList = new ArrayList<>();
+        EquipmentService equipmentService = new EquipmentService(equipmentList);
         ArrayList<CheckRecord> historyList = new ArrayList<>();
         equipmentList.add(new Equipment(1, "Насос", 45.1, 220, 10, LocalDate.of(2026,10,5)));
         equipmentList.add(new Equipment(2, "Трансформатор", 50, 210,15, LocalDate.of(2026, 9, 15)));
@@ -44,13 +46,10 @@ public class Main {
                                     whileStatus = true;
                                     try {
                                     idInput = scanner.nextInt();
-                                    for (Equipment equipment : equipmentList) {
-                                        if (equipment.getId() == idInput) {
-                                            System.out.println("Введен повторяющийся ID");
-                                            System.out.println("Введите новый ID");
+                                        if (equipmentService.findById(idInput) != null) {
                                             whileStatus = false;
-                                            break;
-                                            }
+                                            System.out.println("Введен повторяющийся ID");
+                                            System.out.println("Введите новый  ID");
                                         }
                                     }
                                     catch (InputMismatchException e) {
@@ -114,7 +113,6 @@ public class Main {
                         System.out.println("Введите дату последней проверки (в формате ГГГГ-ММ-ДД)");
                             while (!dateStatus) {
                                 try {
-
                                     String localDateInput = scanner.next();
                                     newLocalDate = LocalDate.parse(localDateInput);
                                     dateStatus = true;
@@ -123,9 +121,12 @@ public class Main {
                                     System.out.println("Введите дату последней проверки (в формате ГГГГ-ММ-ДД");
                                 }
                             }
-
-                        equipmentList.add(new Equipment(idInput ,nameInput, temperatureInput, voltageInput, currentInput, newLocalDate));
-                        System.out.println("Оборудование успешно добавлено");
+                            Equipment addNewEquipment = new Equipment(idInput ,nameInput, temperatureInput, voltageInput, currentInput, newLocalDate);
+                            if (equipmentService.addEquipment(addNewEquipment)) {
+                                System.out.println("Оборудование успешно добавлено");
+                            } else {
+                                System.out.println("Такой ID уже существует");
+                            }
                         break;
                     case 2:
                         System.out.println("Список оборудования");
@@ -160,24 +161,17 @@ public class Main {
                         }
                         break;
                     case 3:
-                        boolean found = false;
-
                         try {
                             System.out.println("Введите ID");
                             int searchID = scanner.nextInt();
 
-                            for (Equipment equipment : equipmentList) {
-                                if (equipment.getId() == searchID) {
+                            Equipment foundEquipment = equipmentService.findById(searchID);
+
+                            if (foundEquipment != null) {
                                     System.out.println("Найдено оборудование:");
-                                    System.out.println("ID: " + equipment.getId()
-                                            + " | Название: " + equipment.getName());
-
-                                    found = true;
-                                    break;
-                                }
-                            }
-
-                            if (!found) {
+                                    System.out.println("ID: " + foundEquipment.getId()
+                                            + " | Название: " + foundEquipment.getName());
+                            } else {
                                 System.out.println("Оборудование не найдено");
                             }
 
