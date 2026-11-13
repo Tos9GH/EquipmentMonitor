@@ -9,10 +9,10 @@ import java.util.List;
 
 public class CheckService {
     private final List<Equipment> equipmentList;
-    private final List<CheckRecord> historyList;
-    public CheckService (List<Equipment> equipmentList, List<CheckRecord> historyList) {
+    private final HistoryService historyService;
+        public CheckService (List<Equipment> equipmentList, HistoryService historyService) {
         this.equipmentList = equipmentList;
-        this.historyList = historyList;
+        this.historyService = historyService;
     }
     public CheckRecord checkEquipment(int id) {
             for (Equipment equipment : equipmentList) {
@@ -23,7 +23,7 @@ public class CheckService {
                     EquipmentStatus overallStatus = temperatureNormal && currentNormal && voltageNormal ? EquipmentStatus.NORMAL : EquipmentStatus.WARNING;
                     LocalDateTime nowDateTime = LocalDateTime.now();
                     CheckRecord historyCheck = new CheckRecord(equipment.getId(), equipment.getName(), nowDateTime, equipment.getTemperature(), equipment.getVoltage(), equipment.getCurrent(), temperatureNormal, voltageNormal, currentNormal, overallStatus);
-                    historyList.add(historyCheck);
+                    historyService.addRecord(historyCheck);
                     equipment.setLastCheck(nowDateTime.toLocalDate());
                     return historyCheck;
                 }

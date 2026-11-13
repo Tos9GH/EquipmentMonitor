@@ -2,6 +2,7 @@ package service;
 
 import model.Equipment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class EquipmentService {
@@ -28,4 +29,22 @@ public class EquipmentService {
         }
     }
 
+    public List<Equipment> getAllEquipment () {
+        return equipmentList;
+    }
+
+    public void setEquipmentList (List<Equipment> loadedEquipment) {
+        equipmentList.clear();
+        equipmentList.addAll(loadedEquipment);
+    }
+
+    public List<Equipment> getEquipmentWithDeviations() {
+        List<Equipment> equipmentWithDeviations = new ArrayList<>();
+        for (Equipment equipment : equipmentList) {
+            if (!equipment.chekStatus()) {
+                equipmentWithDeviations.add(equipment);
+            }
+        }
+        return equipmentWithDeviations;
+    }
 }
