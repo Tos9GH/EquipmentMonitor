@@ -310,6 +310,12 @@ public class Main {
                                     voltage = Integer.parseInt(splitLine[3]);
                                     current = Integer.parseInt(splitLine[4]);
                                     lastCheck = LocalDate.parse(splitLine[5]);
+                                    validData = !loadedEquipment.stream()
+                                                    .anyMatch(equipment -> equipment.getId() == id);
+                                    if (!validData) {
+                                        System.out.println("Повторяющийся ID оборудования. Проверьте файл equipment.txt");
+                                        break;
+                                    }
                                     loadedEquipment.add(new Equipment(id, name, temperature, voltage, current, lastCheck));
                                 }
                                 if (validData) {
