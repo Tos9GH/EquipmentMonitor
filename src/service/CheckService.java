@@ -1,0 +1,33 @@
+package service;
+
+import model.CheckRecord;
+import model.Equipment;
+import model.EquipmentStatus;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public class CheckService {
+    private final List<Equipment> equipmentList;
+    private final List<CheckRecord> historyList;
+    public CheckService (List<Equipment> equipmentList, List<CheckRecord> historyList) {
+        this.equipmentList = equipmentList;
+        this.historyList = historyList;
+    }
+    public CheckRecord checkEquipment(int id) {
+            for (Equipment equipment : equipmentList) {
+                if (equipment.getId() == id) {
+                    boolean temperatureNormal = equipment.chekTemperature(equipment.getTemperature());
+                    boolean voltageNormal = equipment.chekVoltage(equipment.getVoltage());
+                    boolean currentNormal = equipment.chekCurrent(equipment.getCurrent());
+                    EquipmentStatus overallStatus = temperatureNormal && currentNormal && voltageNormal ? EquipmentStatus.NORMAL : EquipmentStatus.WARNING;
+                    LocalDateTime nowDateTime = LocalDateTime.now();
+                    CheckRecord historyCheck = new CheckRecord(equipment.getId(), equipment.getName(), nowDateTime, equipment.getTemperature(), equipment.getVoltage(), equipment.getCurrent(), temperatureNormal, voltageNormal, currentNormal, overallStatus);
+                    historyList.add(historyCheck);
+                    equipment.setLastCheck(nowDateTime.toLocalDate());
+                    return historyCheck;
+                }
+            }
+        return null;
+    }
+}

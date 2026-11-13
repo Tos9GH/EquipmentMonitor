@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.io.IOException;
 import java.util.stream.Collectors;
 import model.Equipment;
+import service.CheckService;
 import service.EquipmentService;
 
 public class Main {
@@ -20,6 +21,7 @@ public class Main {
         ArrayList<Equipment> equipmentList = new ArrayList<>();
         EquipmentService equipmentService = new EquipmentService(equipmentList);
         ArrayList<CheckRecord> historyList = new ArrayList<>();
+        CheckService checkService = new CheckService(equipmentList, historyList);
         equipmentList.add(new Equipment(1, "Насос", 45.1, 220, 10, LocalDate.of(2026,10,5)));
         equipmentList.add(new Equipment(2, "Трансформатор", 50, 210,15, LocalDate.of(2026, 9, 15)));
         Scanner scanner = new Scanner(System.in);
@@ -181,55 +183,38 @@ public class Main {
                         }
                         break;
                     case 4:
-                        boolean foundID = false;
-
                                 try {
                                 System.out.println("Введите ID");
                                 int searchStatusID = scanner.nextInt();
-
-                                for (Equipment equipment : equipmentList) {
-                                    if (equipment.getId() == searchStatusID) {
-                                        boolean temperatureNormal = equipment.chekTemperature(equipment.getTemperature());
-                                        boolean voltageNormal = equipment.chekVoltage(equipment.getVoltage());
-                                        boolean currentNormal = equipment.chekCurrent(equipment.getCurrent());
-                                        EquipmentStatus overallStatus = temperatureNormal && currentNormal && voltageNormal ? EquipmentStatus.NORMAL : EquipmentStatus.WARNING;
-                                        if (temperatureNormal) {
+                                CheckRecord checkRecord = checkService.checkEquipment(searchStatusID);
+                                    if (checkRecord != null) {
+                                        if (checkRecord.isTemperatureNormal()) {
                                             System.out.println("Температура: норма");
                                         } else {
                                             System.out.println("Температура: отклонение");
                                         }
-                                        if (voltageNormal) {
+                                        if (checkRecord.isVoltageNormal()) {
                                             System.out.println("Напряжение: норма");
                                         } else {
                                             System.out.println("Напряжение: отклонение");
                                         }
-                                        if (currentNormal) {
+                                        if (checkRecord.isCurrentNormal()) {
                                             System.out.println("Ток: норма");
                                         } else {
                                             System.out.println("Ток: отклонение");
                                         }
-                                        if (overallStatus == EquipmentStatus.NORMAL) {
+                                        if (checkRecord.getOverallStatus() == EquipmentStatus.NORMAL) {
                                             System.out.println("Общий статус: оборудование в норме");
                                         } else {
                                             System.out.println("Общий статус: обнаружено отклонение");
                                         }
-                                        LocalDateTime nowDateTime = LocalDateTime.now();
-                                        historyList.add(new CheckRecord(equipment.getId(), equipment.getName(), nowDateTime, equipment.getTemperature(), equipment.getVoltage(), equipment.getCurrent(), temperatureNormal, voltageNormal, currentNormal, overallStatus));
-                                        equipment.setLastCheck(nowDateTime.toLocalDate());
-                                        foundID = true;
-                                        break;
+                                    } else {
+                                        System.out.println("Оборудование не найдено");
                                     }
-                                }
-
-                                if (!foundID) {
-                                    System.out.println("Оборудование не найдено");
-                                }
-
-                            } catch (InputMismatchException e) {
+                                } catch (InputMismatchException e) {
                                 System.out.println("Введен неверный ID");
                                 scanner.next();
                                 }
-
                         break;
                     case 5:
                         boolean listStatusEquipment = false;
